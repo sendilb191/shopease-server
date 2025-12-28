@@ -1,14 +1,7 @@
 const express = require("express");
 const cors = require("cors");
 const { router: authRouter } = require("./auth");
-const {
-  initDB,
-  getCart,
-  saveCart,
-  clearCart,
-  getAllProducts,
-  getProductById,
-} = require("./db");
+const { initDB, getAllProducts, getProductById, addProduct } = require("./db");
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -17,15 +10,25 @@ const PORT = process.env.PORT || 5000;
 initDB();
 
 // CORS configuration - must be FIRST
-app.use(cors({
-  origin: '*',
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept', 'Origin', 'X-CSRF-Token', 'X-Api-Version'],
-  credentials: true
-}));
+app.use(
+  cors({
+    origin: "*",
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"],
+    allowedHeaders: [
+      "Content-Type",
+      "Authorization",
+      "X-Requested-With",
+      "Accept",
+      "Origin",
+      "X-CSRF-Token",
+      "X-Api-Version",
+    ],
+    credentials: true,
+  })
+);
 
 // Handle OPTIONS preflight for all routes
-app.options('*', cors());
+app.options("*", cors());
 
 // Request logging middleware
 app.use((req, res, next) => {
@@ -69,109 +72,33 @@ app.get("/api/products/:id", (req, res) => {
   res.json(product);
 });
 
-// Get cart
-app.get("/api/cart/:userId", (req, res) => {
-  const { userId } = req.params;
-  const cart = getCart(userId);
-  res.json(cart);
-});
+// Add new product
+app.post("/api/products", (req, res) => {
+  const { name, description, price, image, category, stock } = req.body;
 
-// Add to cart
-app.post("/api/cart/:userId", (req, res) => {
-  const { userId } = req.params;
-  const { productId, quantity = 1 } = req.body;
-
-  const product = getProductById(productId);
-  if (!product) {
-    return res.status(404).json({ message: "Product not found" });
+  // Validation
+  if (!name || !description || !price || !category) {
+    return res
+      .status(400)
+      .json({ message: "Name, description, price, and category are required" });
   }
 
-  let cart = getCart(userId);
-
-  const existingItem = cart.items.find(
-    (item) => item.productId === parseInt(productId)
-  );
-
-  if (existingItem) {
-    existingItem.quantity += quantity;
-  } else {
-    cart.items.push({
-      productId: parseInt(productId),
-      name: product.name,
-      price: product.price,
-      image: product.image,
-      quantity,
-    });
+  if (typeof price !== "number" || price <= 0) {
+    return res.status(400).json({ message: "Price must be a positive number" });
   }
 
-  // Calculate total
-  cart.total = cart.items.reduce(
-    (sum, item) => sum + item.price * item.quantity,
-    0
-  );
+  const newProduct = addProduct({
+    name,
+    description,
+    price,
+    image:
+      image ||
+      "https://images.unsplash.com/photo-1560393464-5c69a73c5770?w=300",
+    category,
+    stock: stock || 0,
+  });
 
-  saveCart(userId, cart);
-  res.json(cart);
-});
-
-// Update cart item quantity
-app.put("/api/cart/:userId/:productId", (req, res) => {
-  const { userId, productId } = req.params;
-  const { quantity } = req.body;
-
-  let cart = getCart(userId);
-
-  const item = cart.items.find(
-    (item) => item.productId === parseInt(productId)
-  );
-
-  if (!item) {
-    return res.status(404).json({ message: "Item not found in cart" });
-  }
-
-  if (quantity <= 0) {
-    cart.items = cart.items.filter(
-      (item) => item.productId !== parseInt(productId)
-    );
-  } else {
-    item.quantity = quantity;
-  }
-
-  // Recalculate total
-  cart.total = cart.items.reduce(
-    (sum, item) => sum + item.price * item.quantity,
-    0
-  );
-
-  saveCart(userId, cart);
-  res.json(cart);
-});
-
-// Remove from cart
-app.delete("/api/cart/:userId/:productId", (req, res) => {
-  const { userId, productId } = req.params;
-
-  let cart = getCart(userId);
-
-  cart.items = cart.items.filter(
-    (item) => item.productId !== parseInt(productId)
-  );
-
-  // Recalculate total
-  cart.total = cart.items.reduce(
-    (sum, item) => sum + item.price * item.quantity,
-    0
-  );
-
-  saveCart(userId, cart);
-  res.json(cart);
-});
-
-// Clear cart
-app.delete("/api/cart/:userId", (req, res) => {
-  const { userId } = req.params;
-  const cart = clearCart(userId);
-  res.json({ message: "Cart cleared", cart });
+  res.status(201).json(newProduct);
 });
 
 // Health check
