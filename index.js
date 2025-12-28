@@ -43,20 +43,12 @@ app.use("/api/auth", authRouter);
 
 // Get all products
 app.get("/api/products", (req, res) => {
-  const { category, search } = req.query;
+  const { search } = req.query;
   let filteredProducts = getAllProducts();
 
-  if (category) {
-    filteredProducts = filteredProducts.filter(
-      (p) => p.category.toLowerCase() === category.toLowerCase()
-    );
-  }
-
   if (search) {
-    filteredProducts = filteredProducts.filter(
-      (p) =>
-        p.name.toLowerCase().includes(search.toLowerCase()) ||
-        p.description.toLowerCase().includes(search.toLowerCase())
+    filteredProducts = filteredProducts.filter((p) =>
+      p.name.toLowerCase().includes(search.toLowerCase())
     );
   }
 
@@ -74,29 +66,18 @@ app.get("/api/products/:id", (req, res) => {
 
 // Add new product
 app.post("/api/products", (req, res) => {
-  const { name, description, price, image, category, stock } = req.body;
+  const { name, price } = req.body;
 
   // Validation
-  if (!name || !description || !price || !category) {
-    return res
-      .status(400)
-      .json({ message: "Name, description, price, and category are required" });
+  if (!name || price === undefined) {
+    return res.status(400).json({ message: "Name and price are required" });
   }
 
   if (typeof price !== "number" || price <= 0) {
     return res.status(400).json({ message: "Price must be a positive number" });
   }
 
-  const newProduct = addProduct({
-    name,
-    description,
-    price,
-    image:
-      image ||
-      "https://images.unsplash.com/photo-1560393464-5c69a73c5770?w=300",
-    category,
-    stock: stock || 0,
-  });
+  const newProduct = addProduct({ name, price });
 
   res.status(201).json(newProduct);
 });

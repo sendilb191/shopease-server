@@ -8,60 +8,38 @@ let db = {
     {
       id: 1,
       name: "Wireless Headphones",
-      description: "High-quality wireless headphones with noise cancellation",
       price: 99.99,
-      image:
-        "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=300",
-      category: "Electronics",
-      stock: 50,
+      addedTime: "2025-12-01T10:00:00.000Z",
     },
     {
       id: 2,
       name: "Smart Watch",
-      description: "Feature-rich smartwatch with health tracking",
       price: 199.99,
-      image:
-        "https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=300",
-      category: "Electronics",
-      stock: 30,
+      addedTime: "2025-12-05T14:30:00.000Z",
     },
     {
       id: 3,
       name: "Running Shoes",
-      description: "Comfortable running shoes for athletes",
       price: 79.99,
-      image: "https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=300",
-      category: "Sports",
-      stock: 100,
+      addedTime: "2025-12-10T09:15:00.000Z",
     },
     {
       id: 4,
       name: "Backpack",
-      description: "Durable backpack for everyday use",
       price: 49.99,
-      image: "https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=300",
-      category: "Accessories",
-      stock: 75,
+      addedTime: "2025-12-15T16:45:00.000Z",
     },
     {
       id: 5,
       name: "Sunglasses",
-      description: "Stylish sunglasses with UV protection",
       price: 29.99,
-      image:
-        "https://images.unsplash.com/photo-1572635196237-14b3f281503f?w=300",
-      category: "Accessories",
-      stock: 200,
+      addedTime: "2025-12-20T11:20:00.000Z",
     },
     {
       id: 6,
       name: "Coffee Mug",
-      description: "Insulated coffee mug keeps drinks hot",
       price: 14.99,
-      image:
-        "https://images.unsplash.com/photo-1514228742587-6b1558fcca3d?w=300",
-      category: "Home",
-      stock: 150,
+      addedTime: "2025-12-25T08:00:00.000Z",
     },
   ],
 };
@@ -139,7 +117,12 @@ const searchProducts = (searchTerm) => {
 
 const addProduct = (product) => {
   const newId = Math.max(...db.products.map((p) => p.id), 0) + 1;
-  const newProduct = { ...product, id: newId };
+  const newProduct = {
+    id: newId,
+    name: product.name,
+    price: product.price,
+    addedTime: new Date().toISOString(),
+  };
   db.products.push(newProduct);
   return newProduct;
 };
