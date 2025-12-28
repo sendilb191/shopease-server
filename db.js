@@ -4,44 +4,7 @@
 let db = {
   users: [],
   carts: {},
-  products: [
-    {
-      id: 1,
-      name: "Wireless Headphones",
-      price: 99.99,
-      addedTime: "2025-12-01T10:00:00.000Z",
-    },
-    {
-      id: 2,
-      name: "Smart Watch",
-      price: 199.99,
-      addedTime: "2025-12-05T14:30:00.000Z",
-    },
-    {
-      id: 3,
-      name: "Running Shoes",
-      price: 79.99,
-      addedTime: "2025-12-10T09:15:00.000Z",
-    },
-    {
-      id: 4,
-      name: "Backpack",
-      price: 49.99,
-      addedTime: "2025-12-15T16:45:00.000Z",
-    },
-    {
-      id: 5,
-      name: "Sunglasses",
-      price: 29.99,
-      addedTime: "2025-12-20T11:20:00.000Z",
-    },
-    {
-      id: 6,
-      name: "Coffee Mug",
-      price: 14.99,
-      addedTime: "2025-12-25T08:00:00.000Z",
-    },
-  ],
+  products: [],
 };
 
 // Initialize database structure
