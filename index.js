@@ -1,8 +1,14 @@
 const express = require("express");
 const cors = require("cors");
-const products = require("./data/products.json");
 const { router: authRouter } = require("./auth");
-const { initDB, getCart, saveCart, clearCart } = require("./db");
+const {
+  initDB,
+  getCart,
+  saveCart,
+  clearCart,
+  getAllProducts,
+  getProductById,
+} = require("./db");
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -49,7 +55,7 @@ app.use("/api/auth", authRouter);
 // Get all products
 app.get("/api/products", (req, res) => {
   const { category, search } = req.query;
-  let filteredProducts = [...products];
+  let filteredProducts = getAllProducts();
 
   if (category) {
     filteredProducts = filteredProducts.filter(
@@ -70,7 +76,7 @@ app.get("/api/products", (req, res) => {
 
 // Get single product
 app.get("/api/products/:id", (req, res) => {
-  const product = products.find((p) => p.id === parseInt(req.params.id));
+  const product = getProductById(req.params.id);
   if (!product) {
     return res.status(404).json({ message: "Product not found" });
   }
@@ -89,7 +95,7 @@ app.post("/api/cart/:userId", (req, res) => {
   const { userId } = req.params;
   const { productId, quantity = 1 } = req.body;
 
-  const product = products.find((p) => p.id === parseInt(productId));
+  const product = getProductById(productId);
   if (!product) {
     return res.status(404).json({ message: "Product not found" });
   }
